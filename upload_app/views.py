@@ -66,13 +66,15 @@ def home(request):
         with open(image_out_dir, "rb") as image_file:
             compressed_file = base64.b64encode(image_file.read()).decode('utf-8')
 
-        encoded_file_bytes = io.BytesIO(base64.b64decode(encoded_file))
-        compressed_file_bytes = io.BytesIO(base64.b64decode(compressed_file))
+        encoded_file_os = os.stat(image_in_dir)
+        compressed_file_os = os.stat(image_out_dir)
+        encoded_file_bytes = encoded_file_os.st_size / 1024
+        compressed_file_bytes = compressed_file_os.st_size / 1024
         
         return JsonResponse({
             "image_data": encoded_file, 
             "compress_data": compressed_file,
-            "image_size": len(encoded_file_bytes.getvalue()),
-            "compress_size": len(compressed_file_bytes.getvalue()),
-            "time": end - start
+            "image_size": round(encoded_file_bytes, 2),
+            "compress_size": round(compressed_file_bytes, 2),
+            "times": round(encoded_file_bytes / compressed_file_bytes)
         })
