@@ -34,12 +34,14 @@ def home(request):
         if image.mode == 'RGBA':
             image = image.convert('RGB')
 
-        image_in_dir = os.path.join(base_dir, f'static/in/{filename}.pnm')
+        image_in_dir = os.path.join(base_dir, f'static/in/{filename}.{file_extension}')
+        image_pnm_dir = os.path.join(base_dir, f'static/pnm/{filename}.pnm')
         image_out_dir = os.path.join(base_dir, f'static/out/{filename}.{output_format}')
         
         image.save(image_in_dir)
-        
-        img = cv2.imread(image_in_dir, cv2.IMREAD_COLOR)
+        image.save(image_pnm_dir)
+
+        img = cv2.imread(image_pnm_dir, cv2.IMREAD_COLOR)
         height, width = img.shape[:2]
 
         start = time.time()
@@ -59,5 +61,5 @@ def home(request):
             "compress_data": compressed_file,
             "image_size": round(encoded_file_bytes, 2),
             "compress_size": round(compressed_file_bytes, 2),
-            "times": round(encoded_file_bytes / compressed_file_bytes)
+            "percent": round((encoded_file_bytes - compressed_file_bytes) / encoded_file_bytes * 100)
         })
